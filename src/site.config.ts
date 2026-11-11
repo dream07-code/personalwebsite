@@ -3,7 +3,7 @@ export const site = {
   title: 'Dream — Java 后端 & AI 全栈开发者',
   description: '一名来自山东潍坊的 Java 后端 / AI 全栈开发者，记录后端工程、AI 应用与持续构建的过程。',
   // 域名待定：Cloudflare Pages 地址确定后替换这里即可（影响 canonical / RSS / sitemap）
-  url: 'https://dream.pages.dev',
+  url: 'https://dream-12g.pages.dev',
   role: 'Java 后端 / AI 全栈开发者',
   location: '山东 · 潍坊',
   email: 'dream20070116@gmail.com',

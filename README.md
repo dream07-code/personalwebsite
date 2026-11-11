@@ -2,7 +2,7 @@
 
 暗色技术风的个人网站，包含首页、文章、项目、关于我，以及带四角定位框和局部辉光的光标互动。使用 Astro 静态生成，可部署到 Cloudflare Pages。
 
-> 身份信息、邮箱、GitHub 与两个项目已替换为真实内容。仍待确认：`src/site.config.ts` 里的 `url`（当前为占位 `https://dream.pages.dev`）；三篇文章仍是示例，可随时替换为真实笔记。
+> 身份信息、邮箱、GitHub 与两个项目已替换为真实内容。站点线上地址为 **https://dream-12g.pages.dev**（已在 `src/site.config.ts` 的 `url` 中配置，如绑定自定义域名需同步修改）；三篇文章仍是示例，可随时替换为真实笔记。
 
 ## 本地开发
 
