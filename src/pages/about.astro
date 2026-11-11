@@ -1,0 +1,46 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import { githubLabel, site } from '../site.config';
+---
+<BaseLayout title="关于我" description={`关于 ${site.name}：学习方向、构建理念与联系方式。`}>
+  <header class="shell page-hero" data-reveal>
+    <p class="eyebrow">ABOUT / THE HUMAN BEHIND THE CODE</p>
+    <h1>你好，我是 <span>{site.name}</span>。<br />很高兴你在这里。</h1>
+    <p>{site.description}</p>
+  </header>
+  <div class="shell page-content about-grid">
+    <section class="about-panel interactive-card" data-cursor-card data-cursor-label="ABOUT" data-reveal>
+      <p class="eyebrow">01 / MY STORY</p>
+      <h2>在代码里保持好奇</h2>
+      <p>我来自山东潍坊，主要做 Java 后端，也在往前端、Android 和 AI 应用方向延伸。喜欢研究一个系统为什么这样设计，也享受把一个想法从接口、数据库一路做到能被人真正使用的产品。</p>
+      <p>这个网站用来存放我的项目、技术笔记和一些不成熟的思考。它不是一份完美的履历，而是一条真实的学习轨迹。</p>
+    </section>
+    <section class="about-panel interactive-card" data-cursor-card data-cursor-label="ABOUT" data-reveal>
+      <p class="eyebrow">02 / CURRENT FOCUS</p>
+      <h2>现在正在关注</h2>
+      <ul class="now-list">
+        <li><span>01</span><div><strong>Java 后端工程</strong><p>Spring Boot、MySQL、Redis，关注分层、事务与缓存一致性。</p></div></li>
+        <li><span>02</span><div><strong>AI 应用落地</strong><p>把大模型接进真实业务流程：判题、评分、助教与 Agent。</p></div></li>
+        <li><span>03</span><div><strong>全栈与移动端</strong><p>Vue 交互与 Android，让后端能力真正交付到用户手里。</p></div></li>
+      </ul>
+    </section>
+    <section class="about-panel about-panel-wide" data-reveal>
+      <p class="eyebrow">03 / PRINCIPLES</p>
+      <h2>我相信的三件事</h2>
+      <ul class="principle-list">
+        <li><span>01</span><strong>动手胜过空想</strong><p>先做出一个可以运行的版本，再在反馈里把它变好。</p></li>
+        <li><span>02</span><strong>理解胜过记忆</strong><p>追问为什么，把知识变成可以迁移的判断力。</p></li>
+        <li><span>03</span><strong>分享带来连接</strong><p>公开学习不是展示答案，而是邀请更多可能。</p></li>
+      </ul>
+    </section>
+    <section class="about-panel about-panel-wide interactive-card" data-cursor-card data-cursor-label="CONTACT" data-reveal>
+      <p class="eyebrow">04 / GET IN TOUCH</p>
+      <h2>聊聊技术，或者一个新想法</h2>
+      <div class="contact-list">
+        <a href={`mailto:${site.email}`}><span><Icon name="mail" />{site.email}</span><Icon name="arrow-up-right" /></a>
+        <a href={site.github} target="_blank" rel="noreferrer"><span><Icon name="github" />GitHub / {githubLabel(site.github)}</span><Icon name="arrow-up-right" /></a>
+      </div>
+    </section>
+  </div>
+</BaseLayout>

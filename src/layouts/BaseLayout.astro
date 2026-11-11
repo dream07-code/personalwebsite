@@ -1,0 +1,47 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Cursor from '../components/Cursor.astro';
+import MotionEffects from '../components/MotionEffects.astro';
+import ParticleField from '../components/ParticleField.astro';
+import { absoluteUrl, site } from '../site.config';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+const { title, description = site.description } = Astro.props;
+const pageTitle = title ? `${title} — ${site.name}` : site.title;
+const canonical = absoluteUrl(Astro.url.pathname);
+---
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="theme-color" content="#080a0d" />
+    <meta name="description" content={description} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate" type="application/rss+xml" title={`${site.name} RSS`} href="/rss.xml" />
+    <title>{pageTitle}</title>
+    <script is:inline>
+      document.documentElement.classList.add('js-motion');
+    </script>
+  </head>
+  <body>
+    <ParticleField />
+    <MotionEffects />
+    <Header />
+    <main id="main-content">
+      <slot />
+    </main>
+    <Footer />
+    <Cursor />
+  </body>
+</html>

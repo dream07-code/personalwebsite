@@ -1,0 +1,227 @@
+<div class="cursor-root" data-cursor-root aria-hidden="true">
+  <div class="cursor-ring" data-cursor-ring>
+    <span class="cursor-corner cursor-corner-tl"></span>
+    <span class="cursor-corner cursor-corner-tr"></span>
+    <span class="cursor-corner cursor-corner-bl"></span>
+    <span class="cursor-corner cursor-corner-br"></span>
+    <span class="cursor-label" data-cursor-text></span>
+  </div>
+  <div class="cursor-dot" data-cursor-dot></div>
+</div>
+
+<script>
+  import { getCursorMode, getGlowPosition, getNearestTarget, lerp } from '../lib/cursor';
+  import { getCursorFrame, type CursorFrameTarget } from '../lib/motion';
+
+  const root = document.querySelector<HTMLElement>('[data-cursor-root]');
+  const ring = document.querySelector<HTMLElement>('[data-cursor-ring]');
+  const dot = document.querySelector<HTMLElement>('[data-cursor-dot]');
+  const label = document.querySelector<HTMLElement>('[data-cursor-text]');
+  const finePointer = matchMedia('(pointer: fine)').matches;
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const mode = getCursorMode(finePointer, reducedMotion);
+
+  if (root && ring && dot && label && mode !== 'off') {
+    const cards = Array.from(document.querySelectorAll<HTMLElement>('[data-cursor-card]'));
+    const activationRadius = 120;
+    const settleEpsilon = 0.08;
+    let targetX = window.innerWidth / 2;
+    let targetY = window.innerHeight / 2;
+    let ringX = targetX;
+    let ringY = targetY;
+    let ringWidth = 36;
+    let ringHeight = 36;
+    let ringRadius = 12;
+    let hasPosition = false;
+    let animationFrame = 0;
+    let animating = false;
+    let refreshQueued = false;
+
+    const readTargets = (): CursorFrameTarget[] => cards.map((card) => {
+      const rect = card.getBoundingClientRect();
+      return {
+        left: rect.left,
+        top: rect.top,
+        width: rect.width,
+        height: rect.height,
+        radius: Number.parseFloat(getComputedStyle(card).borderRadius) || 22,
+      };
+    });
+
+    let cardRects = readTargets();
+    let lastScrollY = window.scrollY;
+    let lastInnerWidth = window.innerWidth;
+    let activeIndex: number | null = null;
+
+    const readLiveTarget = (index: number): CursorFrameTarget => {
+      const rect = cards[index].getBoundingClientRect();
+      return {
+        left: rect.left,
+        top: rect.top,
+        width: rect.width,
+        height: rect.height,
+        radius: cardRects[index].radius,
+      };
+    };
+
+    const clearCards = () => cards.forEach((card) => card.classList.remove('is-pointer-active', 'is-pointer-near'));
+
+    const updateSelection = (target: Element | null) => {
+      const actionable = target?.closest('a, button, [data-cursor]');
+      root.classList.toggle('is-active', Boolean(actionable));
+
+      const card = target?.closest<HTMLElement>('[data-cursor-card]') ?? null;
+      const nearestIndex = getNearestTarget(targetX, targetY, cardRects, activationRadius);
+      const nearestCard = nearestIndex === null ? null : cards[nearestIndex];
+      const selectedCard = card ?? nearestCard;
+      const nextLabel = card ? card.dataset.cursorLabel || 'EXPLORE' : '';
+
+      cards.forEach((item) => {
+        item.classList.toggle('is-pointer-active', item === card);
+        item.classList.toggle('is-pointer-near', item === nearestCard);
+      });
+      root.classList.toggle('is-snapped', Boolean(nearestCard));
+      root.classList.toggle('is-selected', Boolean(card));
+      if (label.textContent !== nextLabel) label.textContent = nextLabel;
+
+      const selectedIndex = selectedCard ? cards.indexOf(selectedCard) : -1;
+      activeIndex = selectedIndex >= 0 ? selectedIndex : null;
+      if (activeIndex !== null) {
+        const position = getGlowPosition(targetX, targetY, readLiveTarget(activeIndex));
+        ring.style.setProperty('--pointer-x', `${position.x}%`);
+        ring.style.setProperty('--pointer-y', `${position.y}%`);
+      }
+    };
+
+    const hideCursor = () => {
+      root.classList.remove('is-visible', 'is-snapped', 'is-selected');
+      activeIndex = null;
+      clearCards();
+      label.textContent = '';
+      cancelAnimationFrame(animationFrame);
+      animating = false;
+    };
+
+    const deactivateCursor = () => {
+      document.documentElement.classList.remove('custom-cursor');
+      root.classList.remove('is-visible', 'is-active', 'is-pressed', 'is-near', 'is-snapped', 'is-selected');
+      activeIndex = null;
+      clearCards();
+      label.textContent = '';
+      cancelAnimationFrame(animationFrame);
+      animating = false;
+    };
+
+    const animate = () => {
+      const frameTarget = activeIndex === null ? null : readLiveTarget(activeIndex);
+      const frame = getCursorFrame(targetX, targetY, frameTarget, {
+        active: root.classList.contains('is-active'),
+        pressed: root.classList.contains('is-pressed'),
+      });
+
+      const ease = 0.12;
+      const easeSnap = 0.16;
+      ringX = lerp(ringX, frame.x, frame.snapped ? easeSnap : ease);
+      ringY = lerp(ringY, frame.y, frame.snapped ? easeSnap : ease);
+      ringWidth = lerp(ringWidth, frame.width, easeSnap);
+      ringHeight = lerp(ringHeight, frame.height, easeSnap);
+      ringRadius = lerp(ringRadius, frame.radius, easeSnap);
+
+      ring.style.width = `${ringWidth}px`;
+      ring.style.height = `${ringHeight}px`;
+      ring.style.borderRadius = `${ringRadius}px`;
+      ring.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate(-50%, -50%)`;
+
+      const settled =
+        Math.abs(ringX - frame.x) < settleEpsilon &&
+        Math.abs(ringY - frame.y) < settleEpsilon &&
+        Math.abs(ringWidth - frame.width) < settleEpsilon &&
+        Math.abs(ringHeight - frame.height) < settleEpsilon &&
+        Math.abs(ringRadius - frame.radius) < settleEpsilon;
+
+      if (settled || !root.classList.contains('is-visible')) {
+        animating = false;
+        animationFrame = 0;
+        return;
+      }
+      animationFrame = requestAnimationFrame(animate);
+    };
+
+    const startAnimation = () => {
+      if (animating || !root.classList.contains('is-visible')) return;
+      animating = true;
+      animationFrame = requestAnimationFrame(animate);
+    };
+
+    const getPointerTarget = () => {
+      const x = Math.max(0, Math.min(window.innerWidth - 1, targetX));
+      const y = Math.max(0, Math.min(window.innerHeight - 1, targetY));
+      return document.elementFromPoint(x, y);
+    };
+
+    const refreshCardRects = () => {
+      cardRects = readTargets();
+      lastScrollY = window.scrollY;
+      lastInnerWidth = window.innerWidth;
+      updateSelection(getPointerTarget());
+      startAnimation();
+    };
+
+    const scheduleRefresh = () => {
+      if (refreshQueued) return;
+      refreshQueued = true;
+      requestAnimationFrame(() => {
+        refreshQueued = false;
+        refreshCardRects();
+      });
+    };
+
+    window.addEventListener('pointermove', (event) => {
+      if (event.pointerType === 'touch') return;
+      targetX = event.clientX;
+      targetY = event.clientY;
+      if (!hasPosition) {
+        ringX = targetX;
+        ringY = targetY;
+        hasPosition = true;
+      }
+
+      root.classList.add('is-visible');
+      document.documentElement.classList.add('custom-cursor');
+      dot.style.transform = `translate3d(${targetX}px, ${targetY}px, 0) translate(-50%, -50%)`;
+      if (window.scrollY !== lastScrollY || window.innerWidth !== lastInnerWidth) {
+        cardRects = readTargets();
+        lastScrollY = window.scrollY;
+        lastInnerWidth = window.innerWidth;
+      }
+      updateSelection(event.target instanceof Element ? event.target : null);
+      startAnimation();
+    }, { passive: true });
+
+    window.addEventListener('pointerdown', () => {
+      root.classList.add('is-pressed');
+      startAnimation();
+    });
+    window.addEventListener('pointerup', () => {
+      root.classList.remove('is-pressed');
+      startAnimation();
+    });
+    window.addEventListener('pointercancel', () => {
+      root.classList.remove('is-pressed');
+      startAnimation();
+    });
+    window.addEventListener('blur', hideCursor);
+    document.documentElement.addEventListener('mouseleave', hideCursor);
+    window.addEventListener('scroll', scheduleRefresh, { passive: true });
+    window.addEventListener('resize', scheduleRefresh);
+    window.addEventListener('load', scheduleRefresh);
+    // 入场 3D 变换/字体加载会改变卡片矩形，结束后刷新缓存
+    document.addEventListener('transitionend', (event) => {
+      if (event.target instanceof HTMLElement && event.target.hasAttribute('data-reveal')) scheduleRefresh();
+    });
+    document.fonts?.ready.then(() => scheduleRefresh());
+    window.addEventListener('keydown', (event) => {
+      if (event.key === 'Tab') deactivateCursor();
+    });
+  }
+</script>

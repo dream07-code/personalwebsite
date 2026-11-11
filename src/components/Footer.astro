@@ -1,0 +1,26 @@
+---
+import { site } from '../site.config';
+import Icon from './Icon.astro';
+---
+<footer class="site-footer">
+  <div class="shell">
+    <div class="footer-cta interactive-card" data-cursor-card data-cursor-label="SAY HELLO" data-reveal>
+      <div>
+        <p class="eyebrow"><span class="status-dot"></span> HAVE AN IDEA?</p>
+        <h2>让我们做点<br /><span>有意思的东西。</span></h2>
+      </div>
+      <a class="circle-link" data-magnetic href={`mailto:${site.email}`} aria-label="发送邮件">
+        <Icon name="arrow-up-right" size={30} />
+      </a>
+    </div>
+    <div class="footer-bottom">
+      <p>© {new Date().getFullYear()} {site.name}. KEEP LEARNING.</p>
+      <div class="footer-links">
+        <a href={site.github} target="_blank" rel="noreferrer"><Icon name="github" />GitHub</a>
+        <a href={`mailto:${site.email}`}><Icon name="mail" />Email</a>
+        <a href="/rss.xml"><Icon name="rss" />RSS</a>
+      </div>
+      <p class="footer-note">DESIGNED TO EXPLORE <span>↗</span></p>
+    </div>
+  </div>
+</footer>

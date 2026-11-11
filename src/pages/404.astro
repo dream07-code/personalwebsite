@@ -1,0 +1,15 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+---
+<BaseLayout title="页面未找到">
+  <section class="shell not-found">
+    <div>
+      <div class="not-found-code">404</div>
+      <p class="eyebrow" style="justify-content:center">ERROR / LOST IN CYBERSPACE</p>
+      <h1>这个页面似乎去debug了。</h1>
+      <p>链接可能已经改变，也可能从未存在。先回到熟悉的地方吧。</p>
+      <div class="button-row"><a class="button button-primary" href="/">回到首页<Icon name="arrow-right" /></a><a class="button" href="/blog">读点文章</a></div>
+    </div>
+  </section>
+</BaseLayout>

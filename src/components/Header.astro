@@ -1,0 +1,24 @@
+---
+import { site } from '../site.config';
+
+const pathname = Astro.url.pathname;
+const isActive = (href: string) => href === '/' ? pathname === '/' : pathname.startsWith(href);
+---
+<a class="skip-link" href="#main-content">跳到主要内容</a>
+<header class="site-header">
+  <div class="shell header-inner">
+    <a class="brand" href="/" aria-label={`${site.name} 首页`}>
+      <span class="brand-mark" data-magnetic aria-hidden="true">{site.name.slice(0, 1).toUpperCase()}</span>
+      <span>{site.name}<span class="brand-dot">.DEV</span></span>
+    </a>
+    <nav class="main-nav" aria-label="主导航">
+      {site.nav.map((item, index) => (
+        <a href={item.href} class:list={[{ active: isActive(item.href) }]} aria-current={isActive(item.href) ? 'page' : undefined}>
+          <span class="nav-index">0{index + 1}</span>
+          <span>{item.label}</span>
+        </a>
+      ))}
+    </nav>
+    <div class="header-status"><span class="status-dot"></span>LEARNING IN PUBLIC</div>
+  </div>
+</header>

@@ -1,0 +1,34 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Icon from './Icon.astro';
+interface Props {
+  project: CollectionEntry<'projects'>;
+  index: number;
+}
+const { project, index } = Astro.props;
+---
+<article class="project-card interactive-card" data-cursor-card data-cursor-label="OPEN PROJECT" data-reveal>
+  <a href={`/projects/${project.id}`} aria-label={`查看项目：${project.data.title}`}>
+    <div class="project-topline">
+      <span>PROJECT / {String(index + 1).padStart(2, '0')}</span>
+      <span>{project.data.year}</span>
+    </div>
+    <div class:list={['project-visual', `visual-${index % 3}`]} aria-hidden="true">
+      <span class="visual-grid"></span>
+      <span class="visual-orbit orbit-one"></span>
+      <span class="visual-orbit orbit-two"></span>
+      <span class="visual-core">{project.data.title.slice(0, 1)}</span>
+      <span class="visual-label">BUILD / TEST / ITERATE</span>
+    </div>
+    <div class="project-content">
+      <div class="project-title-row">
+        <h3>{project.data.title}</h3>
+        <span class="project-arrow"><Icon name="arrow-up-right" size={22} /></span>
+      </div>
+      <p>{project.data.summary}</p>
+      <ul class="tag-list" aria-label="技术栈">
+        {project.data.stack.map((tech) => <li>{tech}</li>)}
+      </ul>
+    </div>
+  </a>
+</article>

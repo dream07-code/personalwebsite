@@ -1,0 +1,29 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+import { formatDate, readingTime } from '../../lib/format';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  return posts.map((post) => ({ params: { id: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+<BaseLayout title={post.data.title} description={post.data.description}>
+  <article class="shell">
+    <header class="article-header" data-reveal>
+      <a class="back-link" href="/blog"><Icon name="arrow-left" />BACK TO WRITING</a>
+      <div class="post-meta">
+        <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
+        <span>{readingTime(post.body ?? '')} MIN READ</span>
+      </div>
+      <h1>{post.data.title}</h1>
+      <p class="article-description">{post.data.description}</p>
+      <ul class="tag-list" aria-label="文章标签">{post.data.tags.map((tag) => <li><a href={`/blog/tags/${encodeURIComponent(tag)}/`}>#{tag}</a></li>)}</ul>
+    </header>
+    <div class="prose-wrap" data-reveal><div class="prose"><Content /></div></div>
+  </article>
+</BaseLayout>

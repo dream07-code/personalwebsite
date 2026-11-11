@@ -1,0 +1,28 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostRow from '../../components/PostRow.astro';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+const tags = Array.from(new Set(posts.flatMap((post) => post.data.tags)))
+  .sort((a, b) => a.localeCompare(b, 'zh-CN'));
+---
+<BaseLayout title="文章" description="技术笔记、项目复盘与学习思考。">
+  <header class="shell page-hero" data-reveal>
+    <p class="eyebrow">WRITING / NOTES & IDEAS</p>
+    <h1>把思考，<br /><span>写成文字。</span></h1>
+    <p>记录踩过的坑、做过的尝试，以及那些值得回头再看一遍的想法。</p>
+    <div class="page-stats"><span><strong>{String(posts.length).padStart(2, '0')}</strong> ARTICLES</span><span><strong>{String(tags.length).padStart(2, '0')}</strong> TOPICS</span></div>
+  </header>
+  <section class="shell page-content" aria-label="全部文章">
+    {tags.length > 0 && (
+      <nav class="tag-filter" aria-label="按标签筛选文章">
+        {tags.map((tag) => <a href={`/blog/tags/${encodeURIComponent(tag)}/`}>#{tag}</a>)}
+      </nav>
+    )}
+    {posts.length > 0 ? (
+      <div class="post-list">{posts.map((post, index) => <PostRow post={post} index={index} />)}</div>
+    ) : <div class="empty-state">还没有公开文章。写下第一篇，这里就会亮起来。</div>}
+  </section>
+</BaseLayout>

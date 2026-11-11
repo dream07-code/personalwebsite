@@ -1,0 +1,11 @@
+# normalize line endings to LF so Windows edits and Linux CI builds agree
+* text=auto eol=lf
+
+# binaries
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.gif binary
+*.ico binary
+*.mp4 binary

@@ -1,0 +1,33 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import PostRow from '../../../components/PostRow.astro';
+import Icon from '../../../components/Icon.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  const tags = new Set(posts.flatMap((post) => post.data.tags));
+  return Array.from(tags).map((tag) => ({
+    params: { tag },
+    props: {
+      tag,
+      posts: posts
+        .filter((post) => post.data.tags.includes(tag))
+        .sort((a, b) => b.data.date.getTime() - a.data.date.getTime()),
+    },
+  }));
+}
+
+const { tag, posts } = Astro.props;
+---
+<BaseLayout title={`标签：${tag}`} description={`标签 ${tag} 下的全部文章。`}>
+  <header class="shell page-hero" data-reveal>
+    <a class="back-link" href="/blog"><Icon name="arrow-left" />ALL TOPICS</a>
+    <p class="eyebrow">TOPIC / FILTERED WRITING</p>
+    <h1>#{tag}<span>.</span></h1>
+    <p>这个标签下共有 {posts.length} 篇文章，按发布时间倒序排列。</p>
+  </header>
+  <section class="shell page-content" aria-label={`标签 ${tag} 的文章`}>
+    <div class="post-list">{posts.map((post, index) => <PostRow post={post} index={index} />)}</div>
+  </section>
+</BaseLayout>

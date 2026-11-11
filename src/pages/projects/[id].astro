@@ -1,0 +1,29 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+  return projects.map((project) => ({ params: { id: project.id }, props: { project } }));
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+---
+<BaseLayout title={project.data.title} description={project.data.summary}>
+  <article class="shell">
+    <header class="article-header" data-reveal>
+      <a class="back-link" href="/projects"><Icon name="arrow-left" />BACK TO PROJECTS</a>
+      <div class="post-meta"><span>PROJECT / {project.data.year}</span><span>{project.data.stack.join(' + ')}</span></div>
+      <h1>{project.data.title}</h1>
+      <p class="article-description">{project.data.summary}</p>
+      <div class="button-row">
+        {project.data.link && <a class="button button-primary" href={project.data.link} target="_blank" rel="noreferrer">在线体验<Icon name="external" /></a>}
+        {project.data.repo && <a class="button" href={project.data.repo} target="_blank" rel="noreferrer"><Icon name="github" />查看代码</a>}
+      </div>
+      <ul class="tag-list" aria-label="技术栈">{project.data.stack.map((tech) => <li>{tech}</li>)}</ul>
+    </header>
+    <div class="prose-wrap" data-reveal><div class="prose"><Content /></div></div>
+  </article>
+</BaseLayout>

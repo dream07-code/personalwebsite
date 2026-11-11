@@ -1,0 +1,21 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+const technologies = new Set(projects.flatMap((project) => project.data.stack));
+---
+<BaseLayout title="项目" description="从课程练习到独立项目，记录把想法变成可运行产品的过程。">
+  <header class="shell page-hero" data-reveal>
+    <p class="eyebrow">PROJECTS / THINGS I BUILD</p>
+    <h1>不止于想法，<br /><span>更在于实现。</span></h1>
+    <p>从课程实战到独立开发。每个项目都是一次真实的需求、取舍与迭代。</p>
+    <div class="page-stats"><span><strong>{String(projects.length).padStart(2, '0')}</strong> PROJECTS</span><span><strong>{String(technologies.size).padStart(2, '0')}</strong> TECHNOLOGIES</span></div>
+  </header>
+  <section class="shell page-content" aria-label="全部项目">
+    {projects.length > 0 ? (
+      <div class="project-grid">{projects.map((project, index) => <ProjectCard project={project} index={index} />)}</div>
+    ) : <div class="empty-state">项目列表还是空的，下一件作品值得认真对待。</div>}
+  </section>
+</BaseLayout>
