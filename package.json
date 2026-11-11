@@ -1,5 +1,5 @@
 {
-  "name": "nova-personal-website",
+  "name": "dream-personal-website",
   "version": "2.0.0",
   "private": true,
   "type": "module",
@@ -8,7 +8,8 @@
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "test": "npm run build && node --experimental-strip-types --test tests/*.test.ts"
+    "test": "npm run build && node --experimental-strip-types --test tests/*.test.ts",
+    "deploy": "npm run build && npx wrangler pages deploy dist --project-name=dream --branch=main"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.19",

@@ -86,11 +86,22 @@ order: 1
 
 ## 部署到 Cloudflare Pages
 
-### Git 集成（推荐）
+当前线上地址：**https://dream-12g.pages.dev**（Pages 项目名 `dream`，生产分支 `main`）。
+`dream` 子域已被其他项目占用，Cloudflare 自动分配了 `-12g` 后缀；绑定自定义域名后地址会更整洁。
 
-1. 将仓库推送到 GitHub 或 GitLab。
-2. 在 Cloudflare 控制台进入 **Workers & Pages**，创建 Pages 项目并连接仓库。
-3. 使用以下构建设置：
+### 手动部署（当前使用的方式）
+
+```bash
+npm run build
+npx wrangler pages deploy dist --project-name=dream --branch=main
+```
+
+首次使用需要 `npx wrangler login` 完成浏览器授权。这条命令上传的是本地 `dist/`，改完代码必须重新构建再上传。
+
+### Git 自动部署（推荐，配好后只需 push）
+
+1. 在 Cloudflare 控制台进入 **Workers & Pages → dream → Settings → Build**，点击 **Connect to Git** 关联本仓库。
+2. 使用以下构建设置：
 
 | 配置项 | 值 |
 | --- | --- |
@@ -100,18 +111,11 @@ order: 1
 | Build output directory | `dist` |
 | Environment variable | `NODE_VERSION=22`（仓库也已包含 `.nvmrc`） |
 
-4. 点击 **Save and Deploy**。之后推送生产分支会自动构建，其他分支和 PR 可使用预览部署。
-5. 获得 `xxx.pages.dev` 地址后，把 `src/site.config.ts` 的 `url` 改成该地址并再次部署。
+3. 保存后推送 `main` 分支即自动构建上线，其他分支和 PR 会生成预览部署。
 
-### Wrangler 直接上传
+### 自定义域名
 
-```bash
-npm run build
-npx wrangler login
-npx wrangler pages deploy dist --project-name=nova-personal-website
-```
-
-登录和发布会操作你的 Cloudflare 账号，请在确认项目名与内容后自行执行。
+在 Pages 项目的 **Custom domains** 中添加域名，按控制台提示完成 DNS 记录。证书由 Cloudflare 自动处理。别忘了同步更新 `src/site.config.ts` 的 `url`。
 
 ### 自定义域名
 
