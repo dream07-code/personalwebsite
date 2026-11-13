@@ -2,7 +2,7 @@
 
 暗色技术风的个人网站，包含首页、文章、项目、关于我，以及带四角定位框和局部辉光的光标互动。使用 Astro 静态生成，可部署到 Cloudflare Pages。
 
-> 身份信息、邮箱、GitHub 与两个项目已替换为真实内容。站点线上地址为 **https://dream-12g.pages.dev**（已在 `src/site.config.ts` 的 `url` 中配置，如绑定自定义域名需同步修改）；三篇文章仍是示例，可随时替换为真实笔记。
+> 身份信息、邮箱、GitHub 与两个项目已替换为真实内容。站点线上地址为 **https://dream07.cn**（已在 `src/site.config.ts` 的 `url` 中配置，影响 canonical / RSS / sitemap）；三篇文章仍是示例，可随时替换为真实笔记。
 
 ## 本地开发
 
@@ -86,8 +86,11 @@ order: 1
 
 ## 部署到 Cloudflare Pages
 
-当前线上地址：**https://dream-12g.pages.dev**（Pages 项目名 `dream`，生产分支 `main`）。
-`dream` 子域已被其他项目占用，Cloudflare 自动分配了 `-12g` 后缀；绑定自定义域名后地址会更整洁。
+当前线上地址：**https://dream07.cn**（Pages 项目名 `dream`，生产分支 `main`）。
+
+- 域名注册在腾讯云，**DNS 已托管到 Cloudflare**（nameserver 为 `konnor.ns.cloudflare.com` / `sloan.ns.cloudflare.com`），日常解析改动都在 Cloudflare 控制台完成；
+- `www.dream07.cn` 同样指向本站，`canonical` 统一到裸域；
+- Pages 默认域名 `dream-12g.pages.dev` 仍然可用，可作备份入口。
 
 ### 手动部署（当前使用的方式）
 
@@ -115,11 +118,15 @@ npx wrangler pages deploy dist --project-name=dream --branch=main
 
 ### 自定义域名
 
-在 Pages 项目的 **Custom domains** 中添加域名，按控制台提示完成 DNS 记录。证书由 Cloudflare 自动处理。别忘了同步更新 `src/site.config.ts` 的 `url`。
+已完成绑定，无需重复操作。记录一下流程备查：
 
-### 自定义域名
+1. Cloudflare 添加站点（Connect your domain，不是 Transfer）；
+2. 在注册商处把 NS 换成 Cloudflare 分配的两个 nameserver；
+3. 站点 Active 后，在 Pages 项目的 **Custom domains** 里添加 `dream07.cn` 与 `www.dream07.cn`，CNAME 会自动创建；
+4. 证书由 Cloudflare 自动签发（本次约 4 分钟，CA 为 Google Trust Services）；
+5. 最后把 `src/site.config.ts` 的 `url` 改成新域名并重新部署。
 
-在 Pages 项目的 **Custom domains** 中添加域名，按控制台提示完成 DNS 记录。证书由 Cloudflare 自动处理。别忘了同步更新 `src/site.config.ts` 的 `url`。
+更换域名时，第 5 步最容易漏——漏了会导致 canonical、RSS 和 sitemap 仍指向旧地址。
 
 ## 目录速览
 
